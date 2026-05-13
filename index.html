@@ -9,7 +9,8 @@
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=PIXEL_ID&ev=PageView&noscript=1"/></noscript>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;overflow-x:hidden;}
+*{max-width:100vw;}
+html{scroll-behavior:smooth;overflow-x:clip;}
 :root{
   --bg:#07050f;
   --bg2:#0d0820;
@@ -27,7 +28,7 @@ html{scroll-behavior:smooth;overflow-x:hidden;}
   --glass-border:rgba(255,255,255,0.12);
   --font:'Plus Jakarta Sans',sans-serif;
 }
-body{font-family:var(--font);background:#0a0520;color:var(--white);overflow-x:hidden;line-height:1.6;-webkit-overflow-scrolling:touch;}
+body{font-family:var(--font);background:#0a0520;color:var(--white);overflow-x:clip;overflow-y:auto;line-height:1.6;-webkit-overflow-scrolling:touch;position:relative;width:100%;}
 img{display:block;max-width:100%;}
 ::-webkit-scrollbar{width:3px;}
 ::-webkit-scrollbar-thumb{background:var(--p2);}
@@ -45,9 +46,9 @@ body{background:#05030e;}
 
 /* Moving orbs - iphone wallpaper style */
 .orb{position:absolute;border-radius:50%;filter:blur(55px);pointer-events:none;will-change:transform;}
-.orb1{width:280px;height:280px;background:radial-gradient(circle,rgba(139,92,246,.7),rgba(109,40,217,.3) 50%,transparent 70%);top:-80px;left:-60px;animation:orb1move 14s ease-in-out infinite;}
-.orb2{width:240px;height:240px;background:radial-gradient(circle,rgba(236,72,153,.65),rgba(190,24,93,.3) 50%,transparent 70%);top:20%;right:-60px;animation:orb2move 18s ease-in-out infinite;}
-.orb3{width:220px;height:220px;background:radial-gradient(circle,rgba(59,130,246,.55),rgba(37,99,235,.25) 50%,transparent 70%);bottom:25%;left:-40px;animation:orb3move 16s ease-in-out infinite;}
+.orb1{width:240px;height:240px;background:radial-gradient(circle,rgba(139,92,246,.7),rgba(109,40,217,.3) 50%,transparent 70%);top:-60px;left:-40px;animation:orb1move 14s ease-in-out infinite;}
+.orb2{width:200px;height:200px;background:radial-gradient(circle,rgba(236,72,153,.65),rgba(190,24,93,.3) 50%,transparent 70%);top:20%;right:-20px;animation:orb2move 18s ease-in-out infinite;}
+.orb3{width:180px;height:180px;background:radial-gradient(circle,rgba(59,130,246,.55),rgba(37,99,235,.25) 50%,transparent 70%);bottom:25%;left:-20px;animation:orb3move 16s ease-in-out infinite;}
 .orb4{width:220px;height:220px;background:radial-gradient(circle,rgba(167,139,250,.5),rgba(124,58,237,.2) 50%,transparent 70%);bottom:10%;right:10%;animation:orb4move 20s ease-in-out infinite;}
 .orb5{width:180px;height:180px;background:radial-gradient(circle,rgba(244,114,182,.45),rgba(236,72,153,.15) 50%,transparent 70%);top:45%;left:30%;animation:orb5move 12s ease-in-out infinite;}
 
@@ -543,10 +544,23 @@ const row1=document.getElementById('row1');if(row1){[...imgs,...imgs].forEach(sr
 
 function tFaq(btn){const item=btn.closest('.fi'),isOpen=item.classList.contains('open');document.querySelectorAll('.fi.open').forEach(i=>i.classList.remove('open'));if(!isOpen)item.classList.add('open');}
 
-const obs=new IntersectionObserver(en=>{en.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');e.target.querySelectorAll('.counter').forEach(animC);obs.unobserve(e.target);}});},{threshold:.08});
+const obs=new IntersectionObserver(en=>{en.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');e.target.querySelectorAll('.counter').forEach(animC);obs.unobserve(e.target);}});},{threshold:.1});
 document.querySelectorAll('.sr').forEach(el=>obs.observe(el));
-const cobs=new IntersectionObserver(en=>{en.forEach(e=>{if(e.isIntersecting){animC(e.target);cobs.unobserve(e.target);}});},{threshold:.3});
+
+const cobs=new IntersectionObserver(en=>{en.forEach(e=>{if(e.isIntersecting){animC(e.target);cobs.unobserve(e.target);}});},{threshold:.5});
 document.querySelectorAll('.counter').forEach(el=>{if(!el.closest('.sr'))cobs.observe(el);});
+
+// Hero counter - trigger when visible
+const heroCountEl=document.getElementById('heroCount');
+if(heroCountEl){
+  const heroObs=new IntersectionObserver(en=>{en.forEach(e=>{if(e.isIntersecting){
+    const target=100000,dur=2400,s=performance.now(),ease=p=>p===1?1:1-Math.pow(2,-10*p);
+    const tick=now=>{const p=Math.min((now-s)/dur,1);e.target.textContent=Math.floor(ease(p)*target).toLocaleString('en-IN');if(p<1)requestAnimationFrame(tick);};
+    requestAnimationFrame(tick);
+    heroObs.unobserve(e.target);
+  }});},{threshold:.5});
+  heroObs.observe(heroCountEl);
+}
 </script>
 
 <!-- Floating Bubbles Canvas -->
@@ -559,6 +573,9 @@ document.querySelectorAll('.counter').forEach(el=>{if(!el.closest('.sr'))cobs.ob
   function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
   resize();
   window.addEventListener('resize',resize);
+  c.style.width='100%';
+  c.style.left='0';
+  c.style.right='0';
 
   const palettes=[
     {inner:'rgba(167,139,250,',outer:'rgba(124,58,237,',ring:'rgba(196,181,253,'},
@@ -573,7 +590,7 @@ document.querySelectorAll('.counter').forEach(el=>{if(!el.closest('.sr'))cobs.ob
   }
   Bubble.prototype.reset=function(){
     this.r = Math.random()*40+20;     // 20–60px radius
-    this.x = this.r*2 + Math.random()*(W-this.r*4);
+    this.x = this.r + Math.random()*Math.max(0,(W-this.r*2));
     this.y = H + this.r + Math.random()*300;
     this.vx = (Math.random()-.5)*0.6;
     this.vy = -(Math.random()*0.5+0.3); // float upward
@@ -589,8 +606,7 @@ document.querySelectorAll('.counter').forEach(el=>{if(!el.closest('.sr'))cobs.ob
     this.wobble += this.wobbleSpeed;
     this.pulse += this.pulseSpeed;
     this.x += this.vx + Math.sin(this.wobble)*this.wobbleAmp;
-    if(this.x<this.r*2)this.vx=Math.abs(this.vx);
-    if(this.x>W-this.r*2)this.vx=-Math.abs(this.vx);
+    this.x=Math.max(this.r,Math.min(W-this.r,this.x));
     this.y += this.vy;
     if(this.y < -this.r*2) this.reset();
   };
