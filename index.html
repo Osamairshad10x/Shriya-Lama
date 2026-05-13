@@ -9,7 +9,7 @@
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=PIXEL_ID&ev=PageView&noscript=1"/></noscript>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;overflow-x:hidden;}
+html{scroll-behavior:smooth;overflow-x:hidden;overflow-y:scroll;}
 :root{
   --bg:#07050f;
   --bg2:#0d0820;
@@ -27,7 +27,7 @@ html{scroll-behavior:smooth;overflow-x:hidden;}
   --glass-border:rgba(255,255,255,0.12);
   --font:'Plus Jakarta Sans',sans-serif;
 }
-body{font-family:var(--font);background:#0a0520;color:var(--white);overflow-x:hidden;line-height:1.6;}
+body{font-family:var(--font);background:#0a0520;color:var(--white);overflow-x:hidden;overflow-y:auto;line-height:1.6;}
 img{display:block;max-width:100%;}
 ::-webkit-scrollbar{width:3px;}
 ::-webkit-scrollbar-thumb{background:var(--p2);}
@@ -103,8 +103,7 @@ body{background:#05030e;}
 .fsend:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(124,58,237,.5);}
 .fsend:disabled{opacity:.5;cursor:not-allowed;transform:none;}
 .fstatus{text-align:center;font-size:.72rem;margin-top:8px;color:var(--p2);}
-.img-upload-box{background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.2);border-radius:10px;padding:14px;text-align:center;cursor:pointer;font-size:.8rem;color:var(--muted);transition:border-color .2s;}
-.img-upload-box:hover{border-color:var(--p2);}
+
 .tc{flex:0 0 175px;border-radius:16px;overflow:hidden;flex-shrink:0;border:1px solid rgba(255,255,255,.1);transition:all .3s;backdrop-filter:blur(8px);}
 .tc:hover{transform:translateY(-4px);border-color:rgba(168,85,247,.4);}
 .tc img{width:100%;display:block;}
@@ -156,12 +155,12 @@ body{background:#05030e;}
 
 /* journey image — glassmorphism frame */
 .journey-glass{
-  width:100%;max-width:380px;margin:0 auto;
+  width:100%;max-width:240px;margin:0 auto;
   background:rgba(255,255,255,.05);
   border:1px solid rgba(255,255,255,.1);
-  border-radius:24px;padding:8px;
+  border-radius:18px;padding:5px;
   backdrop-filter:blur(10px);
-  box-shadow:0 20px 60px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.1);
+  box-shadow:0 12px 40px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.1);
   animation:riseUp 1s .4s ease both;
   margin-top:4px;
 }
@@ -365,14 +364,7 @@ footer{position:relative;z-index:1;background:rgba(255,255,255,.03);border-top:1
       <div class="fg"><label>Gender *</label><select id="m-gender"><option value="">Select</option><option>Female</option><option>Male</option><option>Other</option></select></div>
     </div>
     <div class="fg"><label>Profession *</label><select id="m-profession"><option value="">Select</option><option>Student</option><option>Housewife</option><option>Working Professional</option><option>Other</option></select></div>
-    <div class="fg">
-      <label>Feedback Screenshot (optional)</label>
-      <div class="img-upload-box" onclick="document.getElementById('feedbackImg').click()">
-        <input type="file" id="feedbackImg" accept="image/*" style="display:none" onchange="previewImg(this)"/>
-        <div id="uploadLabel">📸 Tap to add feedback screenshot</div>
-        <img id="imgPreview" style="display:none;width:100%;border-radius:8px;margin-top:8px;"/>
-      </div>
-    </div>
+
     <button class="fsend" id="sendBtn" onclick="submitForm()">📲 Send to WhatsApp</button>
     <div class="fstatus" id="formStatus"></div>
   </div>
@@ -544,13 +536,7 @@ function animC(el){if(el.dataset.done)return;el.dataset.done='1';const target=pa
 
 const row1=document.getElementById('row1');if(row1){[...imgs,...imgs].forEach(src=>{const d=document.createElement('div');d.className='tc';d.innerHTML=`<img src="${src}" alt="Feedback" loading="lazy"/>`;row1.appendChild(d);});}
 
-function previewImg(input){
-  if(input.files&&input.files[0]){
-    const reader=new FileReader();
-    reader.onload=e=>{document.getElementById("imgPreview").src=e.target.result;document.getElementById("imgPreview").style.display="block";document.getElementById("uploadLabel").style.display="none";};
-    reader.readAsDataURL(input.files[0]);
-  }
-}
+
 function tFaq(btn){const item=btn.closest('.fi'),isOpen=item.classList.contains('open');document.querySelectorAll('.fi.open').forEach(i=>i.classList.remove('open'));if(!isOpen)item.classList.add('open');}
 
 const obs=new IntersectionObserver(en=>{en.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');e.target.querySelectorAll('.counter').forEach(animC);obs.unobserve(e.target);}});},{threshold:.08});
@@ -599,6 +585,8 @@ document.querySelectorAll('.counter').forEach(el=>{if(!el.closest('.sr'))cobs.ob
     this.wobble += this.wobbleSpeed;
     this.pulse += this.pulseSpeed;
     this.x += this.vx + Math.sin(this.wobble)*this.wobbleAmp;
+    if(this.x<this.r)this.x=this.r;
+    if(this.x>W-this.r)this.x=W-this.r;
     this.y += this.vy;
     if(this.y < -this.r*2) this.reset();
   };
